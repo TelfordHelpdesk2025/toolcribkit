@@ -4,7 +4,7 @@ import DataTable from "@/Components/DataTable";
 import Modal from "@/Components/Modal";
 import { useEffect, useState } from "react";
 
-export default function ConversionkitBorrowed({ tableData, tableFilters, emp_data }) {
+export default function ToolkitTurnover({ tableData, tableFilters, emp_data, empData }) {
 
 const [isAssessModalOpen, setIsAssessModalOpen] = useState(false);
 const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -25,6 +25,10 @@ const closeModals = () => {
   setIsViewModalOpen(false);
   setSelectedRow(null);
 };
+
+
+    const empname = empData?.EMPNAME;
+
         const getStatusBadge = (status) => {
         let badgeColor = "bg-gray-500";
         switch (status) {
@@ -101,7 +105,10 @@ const tableRows = tableData.data.map((row) => ({
       );
     }
 
-    if (row.status === "Borrowed") {
+      if (
+      empData?.EMPNAME === row.emp_name &&
+      row.status === "Borrowed"
+    ) {
       return (
         <button
           className="px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 border border-blue-800 hover:border-blue-100"
@@ -112,12 +119,20 @@ const tableRows = tableData.data.map((row) => ({
       );
     }
 
-    return (
-  <p className={`${currentColor} text-sm transition-colors duration-500`}>
-    <i className="fa-solid fa-arrows-spin animate-spin mr-1"></i>
-    Waiting to Accept by<br></br> ToolCrib Admin
-  </p>
+   if (row.status === "Borrowed") {
+      return (
+        <p className={`${currentColor} text-sm flex items-center transition-colors text-red-600 duration-500 animate-pulse`}>
+        <i className="fa-solid fa-triangle-exclamation mr-2"></i>
+        Borrower only can Return<br />this Item
+      </p>
+      );
+    }
 
+    return (
+      <p className={`${currentColor} text-sm flex items-center transition-colors text-sky-600 duration-500`}>
+        <i className="fa-solid fa-arrows-rotate mr-2 animate-spin"></i>
+        Waiting to Accept by ToolCrib<br></br> Personnel
+      </p>
     );
   })(),
 }));
@@ -133,17 +148,17 @@ const [accept_remarks, setAcceptRemarks] = useState("");
             <Head title="Borrowed Conversion Kits" />
 
             <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl font-bold animate-bounce"><i className="fa-solid fa-arrow-up-right-from-square mr-2"></i>Borrowed Conversion Kits</h1>
+                <h1 className="text-2xl font-bold animate-bounce"><i className="fa-solid fa-arrow-up-right-from-square mr-2"></i>Turnover ToolKits</h1>
             </div>
 
             <DataTable
                 columns={[
                     { key: "date", label: "Start Date" },
                     { key: "emp_name", label: "Technician Name" },
-                    { key: "package_from", label: "Package From" },
-                    { key: "package_to", label: "Package To" },
-                    { key: "case_no", label: "Case No" },
-                    { key: "machine", label: "Machine" },
+                    { key: "team", label: "Team" },
+                    { key: "item", label: "Tools" },
+                    { key: "location_use", label: "Location of Use" },
+                    { key: "purpose", label: "Purpose" },
                     { key: "status_badge", label: "Status" },
                     { key: "actions", label: "Actions" },
                 ]}
@@ -156,7 +171,7 @@ const [accept_remarks, setAcceptRemarks] = useState("");
                     currentPage: tableData.current_page,
                     lastPage: tableData.last_page,
                 }}
-                routeName={route("conversionkit.borrowed.index")}
+                routeName={route("toolkit.turnover.index")}
                 filters={tableFilters}
                 rowKey="EMPLOYID"
                 // selectable={true}
@@ -177,58 +192,64 @@ const [accept_remarks, setAcceptRemarks] = useState("");
 
       <div className="space-y-2 text-gray-700">
          <div className="grid grid-cols-2 gap-4">
+           <div>
+                <label htmlFor="" className="text-emerald-500">Date Returned</label>
+                <input type="text" name="returned_date" value={selectedRow.returned_date} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
+            </div>
+            <div>
+                <label htmlFor="" className="text-emerald-500">Returned By</label>
+                <input type="text" name="returned_by" value={selectedRow.returned_by} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
+            </div>
             <div>
                 <label htmlFor="">Date</label>
                 <input type="text" name="date" value={selectedRow.date} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
+            </div>
+            <div>
+                <label htmlFor="">Badge</label>
+                <input type="text" name="emp_id" value={selectedRow.emp_id} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
             </div>
             <div>
                 <label htmlFor="">Technician</label>
                 <input type="text" name="emp_name" value={selectedRow.emp_name} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
             </div>
             <div>
-                <label htmlFor="">Package From</label>
-                <input type="text" name="package_from" value={selectedRow.package_from} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
+                <label htmlFor="">Team</label>
+                <input type="text" name="team" value={selectedRow.team} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
             </div>
             <div>
-                <label htmlFor="">Package To</label>
-                <input type="text" name="package_to" value={selectedRow.package_to} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
+                <label htmlFor="">Production Line</label>
+                <input type="text" name="productline" value={selectedRow.productline} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
             </div>
             <div>
-                <label htmlFor="">Machine</label>
-                <input type="text" name="machine" value={selectedRow.machine} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
+                <label htmlFor="">Tools</label>
+                <input type="text" name="item" value={selectedRow.item} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
             </div>
             <div>
-                <label htmlFor="">Location</label>
+                <label htmlFor="">Serial No.</label>
+                <input type="text" name="serial_no" value={selectedRow.serial_no} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
+            </div>
+            <div>
+                <label htmlFor="">Locatione</label>
                 <input type="text" name="location" value={selectedRow.location} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
             </div>
             <div>
-                <label htmlFor="">Status</label>
-                <input type="text" name="status" value={selectedRow.status} className="w-full border border-blue-700 text-white rounded-md p-2 pointer-events-none bg-blue-500" readOnly/>
+                <label htmlFor="">Location of Use</label>
+                <input type="text" name="location_use" value={selectedRow.location_use} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
             </div>
+            <div>
+                <label htmlFor="">Status</label>
+                <input type="text" name="status" value={selectedRow.status} className="w-full border border-gray-700 text-white rounded-md p-2 pointer-events-none bg-gray-500" readOnly/>
+            </div>
+          </div>
             <div>
                 <label htmlFor="">Purpose</label>
                 <input type="text" name="purpose" value={selectedRow.purpose} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
             </div>
-             
-            
-      </div>
-      <div>
-                <label htmlFor="">Borrower remarks</label>
-                <textarea name="purpose" value={selectedRow.returned_remarks} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly></textarea>
-            </div>
             <div>
-    <label htmlFor="accept_remarks" className="block text-sm font-medium text-gray-700">
-      Remarks
-    </label>
-    <textarea
-      id="accept_remarks"
-      name="accept_remarks"
-      value={accept_remarks}
-      onChange={(e) => setAcceptRemarks(e.target.value)}
-      className="w-full border border-gray-300 rounded-md p-2"
-      required
-    ></textarea>
-  </div>
+        
+                <label htmlFor="">Borrower remarks</label>
+                <textarea name="returned_remarks" value={selectedRow.returned_remarks} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly></textarea>
+            </div>
       </div>
 
       <div className="flex justify-end gap-3 mt-6">
@@ -243,11 +264,10 @@ const [accept_remarks, setAcceptRemarks] = useState("");
     if (!selectedRow) return;
     if (confirm("Are you sure you want to accept this request?")) {
       router.post(
-        route("conversionkit.borrowed.accept", {
+        route("toolkit.borrowed.accept", {
           id: selectedRow.id,
-          package_to: selectedRow.package_to,
-          machine: selectedRow.machine,
-          case_no: selectedRow.case_no,
+          item: selectedRow.item,
+          serial_no: selectedRow.serial_no,
           location: selectedRow.location,
         }),
         { accept_remarks }, // send remarks
@@ -255,7 +275,7 @@ const [accept_remarks, setAcceptRemarks] = useState("");
           onSuccess: () => {
             alert("✅ Accept request successfully!");
             closeModals();
-            router.visit(route("conversionkit.borrowed.index"));
+            router.visit(route("toolkit.borrowed.index"));
           },
           onError: (errors) => {
             console.error(errors);
@@ -286,32 +306,32 @@ const [accept_remarks, setAcceptRemarks] = useState("");
       <div className="space-y-2 text-gray-700">
         <div className="grid grid-cols-2 gap-4">
             <div>
-                <label htmlFor="">Date Borrowed</label>
+                <label htmlFor="">Date</label>
                 <input type="text" name="date" value={selectedRow.date} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
+            </div>
+            <div>
+                <label htmlFor="">Badge</label>
+                <input type="text" name="emp_id" value={selectedRow.emp_id} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
             </div>
             <div>
                 <label htmlFor="">Technician</label>
                 <input type="text" name="emp_name" value={selectedRow.emp_name} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
             </div>
             <div>
-                <label htmlFor="">Package From</label>
-                <input type="text" name="package_from" value={selectedRow.package_from} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
+                <label htmlFor="">Productline</label>
+                <input type="text" name="productline" value={selectedRow.productline} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
             </div>
             <div>
-                <label htmlFor="">Package To</label>
-                <input type="text" name="package_to" value={selectedRow.package_to} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
+                <label htmlFor="">Tools</label>
+                <input type="text" name="item" value={selectedRow.item} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
             </div>
             <div>
-                <label htmlFor="">Machine</label>
-                <input type="text" name="machine" value={selectedRow.machine} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
-            </div>
-            <div>
-                <label htmlFor="">Location</label>
-                <input type="text" name="location" value={selectedRow.location} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
+                <label htmlFor="">Location of Use</label>
+                <input type="text" name="location_use" value={selectedRow.location_use} className="w-full border border-gray-300 rounded-md p-2 pointer-events-none bg-gray-100" readOnly/>
             </div>
             <div>
                 <label htmlFor="">Status</label>
-                <input type="text" name="status" value={selectedRow.status} className="w-full border border-rose-700 text-white rounded-md p-2 pointer-events-none bg-rose-500" readOnly/>
+                <input type="text" name="status" value={selectedRow.status} className="w-full border border-rose-700 text-white rounded-md p-2 pointer-events-none bg-rose-400" readOnly/>
             </div>
             <div>
                 <label htmlFor="">Purpose</label>
@@ -343,13 +363,13 @@ const [accept_remarks, setAcceptRemarks] = useState("");
     if (!selectedRow) return;
     if (confirm("Mark this borrowed as returned?")) {
       router.post(
-        route("conversionkit.borrowed.returned", selectedRow.id),
+        route("toolkit.borrowed.returned", selectedRow.id),
         {returned_remarks},
         {
           onSuccess: () => {
             alert("📘 Successfully Returned!");
             closeModals();
-            router.visit(route("conversionkit.borrowed.index"));
+            router.visit(route("toolkit.borrowed.index"));
           },
           onError: (errors) => {
             console.error(errors);

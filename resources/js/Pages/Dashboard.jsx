@@ -25,6 +25,7 @@ export default function Dashboard({
   const props = usePage().props;
   const role = emp_data?.emp_system_role ?? "user";
   const empName = emp_data?.emp_firstname ?? "User";
+  const empBadge = emp_data?.emp_id ?? "User";
 
   // Ensure props exist
   const convForAck = props.forAcknowledgeConversionkit ?? 0;
@@ -49,7 +50,7 @@ export default function Dashboard({
     <AuthenticatedLayout>
       <Head title="Dashboard" />
 
-      {["superadmin", "admin", "moderator"].includes(role) ? (
+       {["superadmin", "admin"].includes(role) || ["1710", "16103", "1707"].includes(empBadge) ? (
         <div>
           <p className="text-lg font-semibold mb-4">Welcome Admin, 
             <span className="font-bold text-purple-400 text-1xl ml-2">{empName}</span></p>
@@ -73,11 +74,11 @@ export default function Dashboard({
                 <p className="font-bold text-sky-800 text-right text-5xl">{convReq}</p>
                 <div className="card-actions justify-end">
                   {convReq === 0 ? (
-                    <span className="text-2xl font-bold">No Conversionkit for approval</span>
+                    <span className="text-2xl font-bold text-rose-700"><i className="fa-regular fa-bell-slash mr-2"></i>No Conversionkit for approval</span>
                   ) : (
                     <button
                       className="btn bg-white text-black hover:bg-gray-200"
-                      onClick={() => { window.location.href = route("conversionkit.request.index"); }}
+                      onClick={() => { window.location.href = route("conversionkit.forapproval.index"); }}
                     >
                       View Details <i className="fa-solid fa-arrow-right ml-2"></i>
                     </button>
@@ -96,11 +97,11 @@ export default function Dashboard({
                 <p className="font-bold text-gray-800 text-right text-5xl">{toolReq}</p>
                 <div className="card-actions justify-end">
                   {toolReq === 0 ? (
-                    <span className="text-2xl font-bold">No toolkit for approval</span>
+                    <span className="text-2xl font-bold text-rose-700"><i className="fa-regular fa-bell-slash mr-2"></i>No toolkit for approval</span>
                   ) : (
                     <button
                       className="btn bg-white text-black hover:bg-gray-200"
-                      onClick={() => { window.location.href = route("toolkit.request.index"); }}
+                      onClick={() => { window.location.href = route("toolkit.forapproval.index"); }}
                     >
                       View Details <i className="fa-solid fa-arrow-right ml-2"></i>
                     </button>
@@ -120,11 +121,11 @@ export default function Dashboard({
                 <p className="font-bold text-sky-800 text-right text-5xl">{convForRet}</p>
                 <div className="card-actions justify-end">
                   {convForRet === 0 ? (
-                    <span className="text-2xl font-bold">No Conversionkit Returned</span>
+                    <span className="text-2xl font-bold text-rose-700"><i className="fa-regular fa-bell-slash mr-2"></i>No Conversionkit Returned</span>
                   ) : (
                     <button
                       className="btn bg-white text-black hover:bg-gray-200"
-                      onClick={() => { window.location.href = route("conversionkit.borrowed.index"); }}
+                      onClick={() => { window.location.href = route("conversionkit.turnover.index"); }}
                     >
                       View Details <i className="fa-solid fa-arrow-right ml-2"></i>
                     </button>
@@ -143,11 +144,11 @@ export default function Dashboard({
                 <p className="font-bold text-gray-800 text-right text-5xl">{toolForRet}</p>
                 <div className="card-actions justify-end">
                   {toolForRet === 0 ? (
-                    <span className="text-2xl font-bold">No toolkit Returned</span>
+                    <span className="text-2xl font-bold text-rose-700"><i className="fa-regular fa-bell-slash mr-2"></i>No toolkit Returned</span>
                   ) : (
                     <button
                       className="btn bg-white text-black hover:bg-gray-200"
-                      onClick={() => { window.location.href = route("toolkit.borrowed.index"); }}
+                      onClick={() => { window.location.href = route("toolkit.turnover.index"); }}
                     >
                       View Details <i className="fa-solid fa-arrow-right ml-2"></i>
                     </button>
@@ -183,7 +184,7 @@ export default function Dashboard({
                 <p className="font-bold text-sky-800 text-right text-5xl">{convForAck}</p>
                 <div className="card-actions justify-end">
                   {convForAck === 0 ? (
-                    <span className="text-2xl font-bold">No Conversionkit for acknowledgement</span>
+                    <span className="text-2xl font-bold text-rose-700"><i className="fa-regular fa-bell-slash mr-2"></i>No Conversionkit for acknowledgement</span>
                   ) : (
                     <button
                       className="btn bg-white text-black hover:bg-gray-200"
@@ -206,7 +207,7 @@ export default function Dashboard({
                 <p className="font-bold text-gray-800 text-right text-5xl">{toolForAck}</p>
                 <div className="card-actions justify-end">
                   {toolForAck === 0 ? (
-                    <span className="text-2xl font-bold">No toolkit for acknowledgement</span>
+                    <span className="text-2xl font-bold text-rose-700"><i className="fa-regular fa-bell-slash mr-2"></i>No toolkit for acknowledgement</span>
                   ) : (
                     <button
                       className="btn bg-white text-black hover:bg-gray-200"

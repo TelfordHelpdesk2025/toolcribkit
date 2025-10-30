@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
-class conversionkitRequestController extends Controller
+class ConversionkitForApprovalController extends Controller
 {
     protected $datatable;
     protected $datatable1;
@@ -22,6 +22,7 @@ class conversionkitRequestController extends Controller
 
     public function index(Request $request)
     {
+
         $packagesFrom = DB::connection('server26')->table('conversion_kit')
             ->where('package_to', '!=', 'N/A')
             ->where('package_to', '!=', '-')
@@ -40,36 +41,19 @@ class conversionkitRequestController extends Controller
             ->orderBy('package_to')
             ->get();
 
+
+
+
         $empData = session('emp_data');
+
 
         $employee = DB::connection('masterlist')->table('employee_masterlist')
             ->where('EMPLOYID', $empData['emp_id'])
             ->first();
 
-        // 🔍 Check kung may hindi pa naibabalik na tool (based on emp_name)
-        $hasBorrowed = DB::connection('server26')->table('toolcrib_tbl')
-            ->where('emp_name', $employee->EMPNAME)
-            ->where(function ($q) {
-                $q->whereNull('status')
-                    ->orWhere('status', 'Borrowed')
-                    ->orWhere('status', 'For Approval')
-                    ->orWhere('status', 'For Acknowledge');
-            })
-            ->exists();
-
-        $hasTurnover = DB::connection('server26')->table('toolcrib_tbl')
-            ->where('emp_name', $employee->EMPNAME)
-            ->where(function ($q) {
-                $q->whereNull('status')
-                    ->orWhere('status', 'Turnover');
-            })
-            ->exists();
-
-        // 🧩 I-attach yung flag sa employee data
-        $employee->hasBorrowed = $hasBorrowed;
-        $employee->hasTurnover = $hasTurnover;
-
         $conversionkit_request = DB::connection('server26')->table('toolcrib_tbl')->get();
+
+
 
         $result = $this->datatable->handle(
             $request,
@@ -78,19 +62,21 @@ class conversionkitRequestController extends Controller
             [
                 'conditions' => function ($query) {
                     return $query
-                        ->whereIn('status', ['For Approval', 'For Acknowledge'])
-                        ->orderByRaw("CASE WHEN status = 'For Acknowledge' THEN 0 ELSE 1 END")
+                        ->whereIn('status', ['For Approval'])
                         ->orderBy('id', 'desc');
                 },
                 'searchColumns' => ['date', 'emp_name', 'package_from', 'package_to', 'case_no', 'machine'],
             ]
         );
 
+        // FOR CSV EXPORTING
         if ($result instanceof \Symfony\Component\HttpFoundation\StreamedResponse) {
             return $result;
         }
 
-        return Inertia::render('Request/ConversionkitRequest', [
+        // dd($employee);
+
+        return Inertia::render('Request/ConversionkitForApproval', [
             'tableData' => $result['data'],
             'empData' => $employee,
             'packagesFrom' => $packagesFrom,
@@ -108,7 +94,6 @@ class conversionkitRequestController extends Controller
             ]),
         ]);
     }
-
 
     public function store(Request $request)
     {

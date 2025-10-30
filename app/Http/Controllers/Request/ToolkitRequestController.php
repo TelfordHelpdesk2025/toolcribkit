@@ -48,6 +48,29 @@ class ToolkitRequestController extends Controller
             ->where('EMPLOYID', $empData['emp_id'])
             ->first();
 
+        // 🔍 Check kung may hindi pa naibabalik na tool (based on emp_name)
+        $hasBorrowed = DB::connection('server26')->table('toolkit_tbl')
+            ->where('emp_name', $employee->EMPNAME)
+            ->where(function ($q) {
+                $q->whereNull('status')
+                    ->orWhere('status', 'Borrowed')
+                    ->orWhere('status', 'For Approval')
+                    ->orWhere('status', 'For Acknowledge');
+            })
+            ->exists();
+
+        $hasTurnover = DB::connection('server26')->table('toolkit_tbl')
+            ->where('emp_name', $employee->EMPNAME)
+            ->where(function ($q) {
+                $q->whereNull('status')
+                    ->orWhere('status', 'Turnover');
+            })
+            ->exists();
+
+        // 🧩 I-attach yung flag sa employee data
+        $employee->hasBorrowed = $hasBorrowed;
+        $employee->hasTurnover = $hasTurnover;
+
 
 
         $result = $this->datatable->handle(

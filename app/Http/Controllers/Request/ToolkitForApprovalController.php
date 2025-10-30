@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
-class conversionkitRequestController extends Controller
+class ToolkitForApprovalController extends Controller
 {
     protected $datatable;
     protected $datatable1;
@@ -22,80 +22,60 @@ class conversionkitRequestController extends Controller
 
     public function index(Request $request)
     {
-        $packagesFrom = DB::connection('server26')->table('conversion_kit')
-            ->where('package_to', '!=', 'N/A')
-            ->where('package_to', '!=', '-')
+
+        $locations = DB::connection('server26')->table('location_list')
+            ->where('location_name', '!=', 'N/A')
             ->distinct()
-            ->orderBy('package_to')
             ->get();
 
-        $packagesTo = DB::connection('server26')
-            ->table('conversion_kit')
-            ->select('package_to', 'machine', 'case_no', 'location', 'borrowed_status')
+        $items = DB::connection('server26')
+            ->table('toolkit_list')
+            ->select('tool_description', 'location', 'serial_no', 'borrowed_status')
             ->where(function ($q) {
                 $q->whereRaw('LOWER(borrowed_status) = ?', ['returned'])
                     ->orWhereNull('borrowed_status');
             })
             ->distinct()
-            ->orderBy('package_to')
+            ->orderBy('tool_description')
+            ->orderBy('location')
+            ->orderBy('serial_no')
             ->get();
 
         $empData = session('emp_data');
+
 
         $employee = DB::connection('masterlist')->table('employee_masterlist')
             ->where('EMPLOYID', $empData['emp_id'])
             ->first();
 
-        // 🔍 Check kung may hindi pa naibabalik na tool (based on emp_name)
-        $hasBorrowed = DB::connection('server26')->table('toolcrib_tbl')
-            ->where('emp_name', $employee->EMPNAME)
-            ->where(function ($q) {
-                $q->whereNull('status')
-                    ->orWhere('status', 'Borrowed')
-                    ->orWhere('status', 'For Approval')
-                    ->orWhere('status', 'For Acknowledge');
-            })
-            ->exists();
 
-        $hasTurnover = DB::connection('server26')->table('toolcrib_tbl')
-            ->where('emp_name', $employee->EMPNAME)
-            ->where(function ($q) {
-                $q->whereNull('status')
-                    ->orWhere('status', 'Turnover');
-            })
-            ->exists();
-
-        // 🧩 I-attach yung flag sa employee data
-        $employee->hasBorrowed = $hasBorrowed;
-        $employee->hasTurnover = $hasTurnover;
-
-        $conversionkit_request = DB::connection('server26')->table('toolcrib_tbl')->get();
 
         $result = $this->datatable->handle(
             $request,
             'server26',
-            'toolcrib_tbl',
+            'toolkit_tbl',
             [
                 'conditions' => function ($query) {
                     return $query
-                        ->whereIn('status', ['For Approval', 'For Acknowledge'])
-                        ->orderByRaw("CASE WHEN status = 'For Acknowledge' THEN 0 ELSE 1 END")
+                        ->whereIn('status', ['For Approval'])
                         ->orderBy('id', 'desc');
                 },
-                'searchColumns' => ['date', 'emp_name', 'package_from', 'package_to', 'case_no', 'machine'],
+                'searchColumns' => ['date', 'emp_name', 'item', 'status'],
             ]
         );
 
+        // FOR CSV EXPORTING
         if ($result instanceof \Symfony\Component\HttpFoundation\StreamedResponse) {
             return $result;
         }
 
-        return Inertia::render('Request/ConversionkitRequest', [
+        // dd($employee);
+
+        return Inertia::render('Request/ToolkitForApproval', [
             'tableData' => $result['data'],
             'empData' => $employee,
-            'packagesFrom' => $packagesFrom,
-            'packagesTo' => $packagesTo,
-            'conversionkit_request' => $conversionkit_request,
+            'locations' => $locations,
+            'items' => $items,
             'tableFilters' => $request->only([
                 'search',
                 'perPage',
@@ -109,7 +89,6 @@ class conversionkitRequestController extends Controller
         ]);
     }
 
-
     public function store(Request $request)
     {
         // ✅ Validate inputs
@@ -117,26 +96,24 @@ class conversionkitRequestController extends Controller
             'emp_id'        => 'required|string',
             'emp_name'      => 'required|string',
             'team'          => 'required|string',
-            'package_from'  => 'required|string',
-            'package_to'    => 'required|string',
-            'case_no'       => 'required|string',
-            'machine'       => 'required|string',
+            'item'          => 'required|string',
+            'serial_no'     => 'required|string',
+            'productline'   => 'required|string',
             'location'      => 'required|string',
-            'taper_track'   => 'required|string',
+            'location_use'  => 'required|string',
             'purpose'       => 'required|string',
         ]);
 
-        DB::connection('server26')->table('toolcrib_tbl')->insert([
+        DB::connection('server26')->table('toolkit_tbl')->insert([
             'date'          => Carbon::now()->format('m/d/Y H:i:s'),
             'emp_id'        => $request->emp_id,
             'emp_name'      => $request->emp_name,
             'team'          => $request->team,
-            'package_from'  => $request->package_from,
-            'package_to'    => $request->package_to,
-            'case_no'       => $request->case_no,
-            'machine'       => $request->machine,
+            'item'          => $request->item,
+            'serial_no'     => $request->serial_no,
+            'productline'   => $request->productline,
             'location'      => $request->location,
-            'taper_track'   => $request->taper_track,
+            'location_use'  => $request->location_use,
             'purpose'       => $request->purpose,
             'status'        => 'For Approval',
         ]);
@@ -144,35 +121,32 @@ class conversionkitRequestController extends Controller
         return back()->with('success', '✅ Request submitted successfully!');
     }
 
-    public function approve($id, $package_to, $machine, $case_no, $location, Request $request)
+    public function approve($id, $item, $serial_no, $location, Request $request)
     {
-        DB::connection('server26')->table('toolcrib_tbl')
+        DB::connection('server26')->table('toolkit_tbl')
             ->where('id', $id)
             ->update([
                 'approver_id' => session('emp_data')['emp_id'],
                 'approver_name' => session('emp_data')['emp_name'],
                 'approve_date' => Carbon::now()->format('m/d/Y H:i:s'),
                 'status' => 'For Acknowledge',
-                'remarks'       => $request->input('remarks'),
+                'approver_remarks'       => $request->input('approver_remarks'),
             ]);
 
-        DB::connection('server26')->table('conversion_kit')
-            ->where('package_to', $package_to)
-            ->where('machine', $machine)
-            ->where('case_no', $case_no)
+        DB::connection('server26')->table('toolkit_list')
+            ->where('tool_description', $item)
+            ->where('serial_no', $serial_no)
             ->where('location', $location)
             ->update([
                 'borrowed_status' => 'Borrowed'
             ]);
-
-
 
         return back()->with('success', 'Request approved successfully!');
     }
 
     public function acknowledge($id)
     {
-        DB::connection('server26')->table('toolcrib_tbl')
+        DB::connection('server26')->table('toolkit_tbl')
             ->where('id', $id)
             ->update([
                 'acknowledge_by_id' => session('emp_data')['emp_id'],

@@ -3,7 +3,7 @@ import { Head, router } from "@inertiajs/react";
 import DataTable from "@/Components/DataTable";
 import { useEffect, useState } from "react";
 
-export default function ConversionkitRequest({ tableData, tableFilters, packagesFrom, packagesTo, empData, emp_data }) {
+export default function ConversionkitForApproval({ tableData, tableFilters, packagesFrom, packagesTo, empData, emp_data, conversionkit_request }) {
 
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -11,8 +11,6 @@ export default function ConversionkitRequest({ tableData, tableFilters, packages
 const [isAssessModalOpen, setIsAssessModalOpen] = useState(false);
 const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 const [selectedRow, setSelectedRow] = useState(null);
-
-
 
 const openEditModal = (row) => {
   setSelectedRow(row);
@@ -273,34 +271,13 @@ const [remarks, setRemarks] = useState("");
             <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-bold animate-bounce"><i className="fa-solid fa-arrows-turn-to-dots mr-2"></i> Conversion Kit Request</h1>
 
-{/* 🔹 Request New Button */}
-<button
-    onClick={() => {
-      if (empData.hasBorrowed) {
-            alert(`⚠️ Sorry. ${empData.EMPNAME} must return all borrowed items before making a new request.`);
-        } else {
-            setShowModal(true);
-        }
-
-        if (empData.hasTurnover) {
-            alert(`⚠️ Sorry. ${empData.EMPNAME} has already returned the item, but it’s still pending admin confirmation.`);
-        } else {
-            setShowModal(true);
-        }
-    }}
-    className={`px-4 py-2 rounded-md text-white ${
-        empData.hasBorrowed || empData.hasTurnover
-            ? "bg-blue-400 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700"
-    }`}
-    // disabled={empData.hasBorrowed}
->
-    <i className="fa-solid fa-plus mr-2"></i> Request New
-</button>
-
-
-
-
+                {/* 🔹 Request New Button */}
+                <button
+                    onClick={() => setShowModal(true)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                >
+                    <i className="fa-solid fa-plus mr-2"></i> Request New
+                </button>
             </div>
 
             {/* 🔹 DataTable */}
@@ -325,7 +302,7 @@ const [remarks, setRemarks] = useState("");
                     currentPage: tableData.current_page,
                     lastPage: tableData.last_page,
                 }}
-                routeName={route("conversionkit.request.index")}
+                routeName={route("conversionkit.forapproval.index")}
                 filters={tableFilters}
                 rowKey="id"
                 showExport={false}

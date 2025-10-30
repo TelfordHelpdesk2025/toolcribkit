@@ -225,7 +225,7 @@ const tableRows = tableData.data.map((row) => ({
   actions: (() => {
     // ✅ Case 1: Admins — show Assess button
     if (
-      ["superadmin", "admin", "moderator"].includes(emp_data?.emp_system_role) &&
+     ["superadmin", "admin", "moderator"].includes(emp_data?.emp_system_role) || ["16103", "1710", "1707"].includes(emp_data?.emp_id) &&
       row.status === "For Approval"
     ) {
       return (
@@ -286,13 +286,30 @@ const [approver_remarks, setRemarks] = useState("");
             <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-bold animate-bounce"><i className="fa-solid fa-toolbox mr-2 animate-pulse"></i> Tool Kit Request</h1>
 
-                {/* 🔹 Request New Button */}
-                <button
-                    onClick={() => setShowModal(true)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                >
-                    <i className="fa-solid fa-plus mr-2"></i> Request New
-                </button>
+               {/* 🔹 Request New Button */}
+<button
+    onClick={() => {
+      if (empData.hasBorrowed) {
+            alert(`⚠️ Sorry. ${empData.EMPNAME} must return all borrowed items before making a new request.`);
+        } else {
+            setShowModal(true);
+        }
+
+        if (empData.hasTurnover) {
+            alert(`⚠️ Sorry. ${empData.EMPNAME} has already returned the item, but it’s still pending admin confirmation.`);
+        } else {
+            setShowModal(true);
+        }
+    }}
+    className={`px-4 py-2 rounded-md text-white ${
+        empData.hasBorrowed || empData.hasTurnover
+            ? "bg-blue-400 cursor-not-allowed"
+            : "bg-blue-600 hover:bg-blue-700"
+    }`}
+    // disabled={empData.hasBorrowed}
+>
+    <i className="fa-solid fa-plus mr-2"></i> Request New
+</button>
             </div>
 
             {/* 🔹 DataTable */}

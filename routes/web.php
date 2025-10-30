@@ -1,11 +1,15 @@
 <?php
 
 use App\Http\Controllers\Borrowed\ConversionkitBorrowedController;
+use App\Http\Controllers\Borrowed\ConversionkitTurnoverController;
 use App\Http\Controllers\Borrowed\ToolkitBorrowedController;
+use App\Http\Controllers\Borrowed\ToolkitTurnoverController;
 use App\Http\Controllers\DemoController;
 use App\Http\Controllers\Inventory\ConversionkitController;
 use App\Http\Controllers\Inventory\ToolsController;
+use App\Http\Controllers\Request\ConversionkitForApprovalController;
 use App\Http\Controllers\Request\conversionkitRequestController;
+use App\Http\Controllers\Request\ToolkitForApprovalController;
 use App\Http\Controllers\Request\ToolkitRequestController;
 use App\Http\Controllers\Returned\ConversionkitReturnedController;
 use App\Http\Controllers\Returned\ToolkitReturnedController;
@@ -60,6 +64,12 @@ Route::post(
 )->name('toolkit.borrowed.accept');
 
 Route::get("/returned/toolkitReturned", [ToolkitReturnedController::class, 'index'])->name('toolkit.returned.index');
+
+Route::get("/forapproval/conversionkit", [ConversionkitForApprovalController::class, 'index'])->name('conversionkit.forapproval.index');
+Route::get("/forapproval/toolkit", [ToolkitForApprovalController::class, 'index'])->name('toolkit.forapproval.index');
+
+Route::get("/turnover/conversionkit", [ConversionkitTurnoverController::class, 'index'])->name('conversionkit.turnover.index');
+Route::get("/turnover/toolkit", [ToolkitTurnoverController::class, 'index'])->name('toolkit.turnover.index');
 
 
 Route::fallback(function () {

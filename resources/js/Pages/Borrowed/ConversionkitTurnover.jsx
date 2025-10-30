@@ -4,7 +4,7 @@ import DataTable from "@/Components/DataTable";
 import Modal from "@/Components/Modal";
 import { useEffect, useState } from "react";
 
-export default function ConversionkitBorrowed({ tableData, tableFilters, emp_data }) {
+export default function ConversionkitTurnover({ tableData, tableFilters, emp_data }) {
 
 const [isAssessModalOpen, setIsAssessModalOpen] = useState(false);
 const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -133,7 +133,7 @@ const [accept_remarks, setAcceptRemarks] = useState("");
             <Head title="Borrowed Conversion Kits" />
 
             <div className="flex items-center justify-between mb-4">
-                <h1 className="text-2xl font-bold animate-bounce"><i className="fa-solid fa-arrow-up-right-from-square mr-2"></i>Borrowed Conversion Kits</h1>
+                <h1 className="text-2xl font-bold animate-bounce"><i className="fa-solid fa-arrow-up-right-from-square mr-2"></i>Turnover Conversion Kits</h1>
             </div>
 
             <DataTable

@@ -44,7 +44,7 @@ export default function NavLinks() {
                     },
                 ]}
             />
-{["superadmin", "admin", "moderator"].includes(emp_data?.emp_system_role) && (
+{["superadmin", "admin"].includes(emp_data?.emp_system_role) || ["1710", "16103", "1707"].includes(emp_data?.emp_id) && (
             <Dropdown
                 label="Returned Items"
                 icon={<i className="fa-solid fa-boxes-packing"></i>}
@@ -60,7 +60,7 @@ export default function NavLinks() {
                 ]}
             />
 )}
-{["superadmin", "admin", "moderator"].includes(emp_data?.emp_system_role) && (
+{["superadmin", "admin"].includes(emp_data?.emp_system_role) || ["1710", "16103", "1707"].includes(emp_data?.emp_id) && (
             <Dropdown
                 label="Inventory"
                 icon={<i className="fa-solid fa-list-ol"></i>}
